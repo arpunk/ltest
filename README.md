@@ -2,12 +2,11 @@
 
 [![Build Status][travis badge]][travis] [![LFE Versions][lfe badge]][lfe] [![Erlang Versions][erlang badge]][versions] [![Tags][github tags badge]][github tags] [![Downloads][hex downloads]][hex package]
 
-[![][ltest-logo]][ltest-logo-large]
+*An EUnit based testing framework for LFE (forked from [lfex/ltest](https://github.com/lfex/ltest))*
 
-[ltest-logo]: priv/images/ltest-logo-small.png
-[ltest-logo-large]: priv/images/ltest-logo-large.png
-
-*A Unit, Integration, and System Tests Framework for LFE*
+**NOTE:** This is a slim version of ltest best suited for my
+  needs. [I](https://github.com/arpunk) do not need the extra stuff
+  the official ltest offers.
 
 
 ## Contents
@@ -22,7 +21,6 @@
   * [Naming Rules](#naming-rules-)
   * [Creating Unit Tests](#creating-unit-tests-)
   * [Running Your Tests](#running-your-tests-)
-  * [The LFE Test Runner](#the-lfe-test-runner-)
 * [Dogfood](#dogfood-)
 * [License](#license-)
 
@@ -34,26 +32,12 @@ difficulties in parsing the Erlang include file for EUnit, ``eunit.hrl``, by
 LFE (it didn't convert all the Erlang macros). Good news: that has since been
 fixed!
 
-However, during lfeunit's early existence, additional features were added
--- things that EUnit didn't have or were clumsy to use. Such features, improved
-in ltest, make the creation of not only unit tests, but system and integration
-tests, easier and more consistent. These are briefly outlined in the next
-section.
-
 Of particular interest to those coming from the Clojure community, the macros
 in this library are inspired by Clojure's excellent unit test framework.
 
-Finally, features have been introduced into ltest that have no counterpart in
-EUnit (e.g., defining tests to be skipped, using behaviours to "tag" types
-of tests, and a REALLY BEAUTIFUL test runner, etc.)
-
-
-## Dependencies [&#x219F;](#contents)
-
-As of version 0.7.0, this project assumes that you have
-[rebar3](https://github.com/rebar/rebar3) installed somwhere in your ``$PATH``.
-It no longer uses the old version of rebar. If you do not wish to use rebar3,
-you may use the most recent rebar2-compatible release of ltest: 0.6.3.
+Please note this is an unofficial fork. The current official
+implementation of ltest is located
+[here](https://github.com/lfex/ltest).
 
 
 ## EUnit Compatibility [&#x219F;](#contents)
@@ -72,13 +56,6 @@ listener (test runner).
 * ``(list ...)``-wrapped tests (of arbitrary depth) for use as test sets
 * ``(tuple ...)``-wrapped tests for naming/describing tests (first element
   of tuple)
-* ``(behaviour ltest-unit)`` - annotating a test module to be run as a unit
-  test
-* ``(behaviour ltest-integration)`` - annotating a test module to be run as an
-  integration test
-* ``(behaviour ltest-system)`` - annotating a test module to be run as a
-  system test
-* A custom test runner that over-rides EUnit behaviour and aesthetics
 
 
 ## Using ``ltest`` [&#x219F;](#contents)
@@ -95,8 +72,7 @@ take your tests from (``eunit_compile_otps``). In your ``rebar.config``:
 {profiles, [
   {test, [
     {deps, [
-      {eunit_compile_opts, [{src_dirs, ["src", "test"]}]},
-      {ltest, {git, "git://github.com/lfex/ltest.git", {tag, "0.10.0-rc2"}}}
+      {ltest, {git, "git://github.com/arpunk/ltest.git", {branch, "slim"}}}
     ]}
   ]}
 ]}.
@@ -120,39 +96,6 @@ Instead, you should create a top-level directory in your project called
 has, e.g., ``test/myproj-base-tests.lfe`` and ``test/myproj-util-tests.lfe``.
 Obviously, if it makes sense to break things up in a more fine-grained manner,
 feel free to do so :-)
-
-Furthermore, ltest supports separating unit, integration, and system tests.
-This is done using custom OTP behaviours. For each test cases module you have
-created in ``./test``, be sure to set the behaviour in the ``(defmodule ...)``
-form. For instance:
-
-```cl
-  (defmodule my-unit-tests
-    (behaviour ltest-unit)
-    (export ...))
-```
-And two more as well:
-
-```cl
-  (defmodule my-integration-tests
-    (behaviour ltest-integration)
-    (export ...))
-```
-
-or
-
-```cl
-  (defmodule my-system-tests
-    (behaviour ltest-system)
-    (export ...))
-```
-
-For a working example of such a structure, see the layout of the ``ltest``
-project itself: it uses just such a setup.
-
-To read more about the distinction between unit, integration, and system
-tests, check out the Wikipedia
-[article on testing](http://en.wikipedia.org/wiki/Software_testing#Testing_levels).
 
 
 ### Naming Rules [&#x219F;](#contents)
@@ -179,8 +122,8 @@ conventions that eunit establishes:
 ### Creating Unit Tests [&#x219F;](#contents)
 
 ltest is entirely macro-based. ltest uses LFE to parse the Erlang macros in
-the eunit header file. It also provides its own header file which defines macros
-whose main purpose is to wrap the eunit macros in a more Lispy form.
+the EUnit header file. It also provides its own header file which defines macros
+whose main purpose is to wrap the EUnit macros in a more Lispy form.
 
 ltest also provides a syntactic sugar macro for defining tests: ``deftest``.
 Instead of writing something like this for your unit tests:
@@ -222,21 +165,17 @@ This will simply make the test invisible to EUnit. EUnit doesn't actually
 track user-skipped tests; it only tracks tests that are skipped do to issues
 as perceived by EUnit.
 
-However, ltest's test runner *does* track skipped tests and will report
-these in its output.
-
 Here is a more complete example:
 
 ```cl
     (defmodule unit-mymodule-tests
-      (behaviour ltest-unit)
       (export all)
       (import
         (from ltest
           (check-failed-assert 2)
           (check-wrong-assert-exception 2))))
 
-    (include-lib "deps/ltest/include/ltest-macros.lfe")
+    (include-lib "ltest/include/ltest.lfe")
 
     (deftest is
       (is 'true)
@@ -256,68 +195,12 @@ tests for ltest itself provide the best examples of usage.
 
 ### Running Your Tests [&#x219F;](#contents)
 
-The recommended way to run unit tests is to use ``lfetool``. Running
+The recommended way to run unit tests is to use ``rebar3``. Running
 unit tests is now as easy as doing the following:
 
 ```bash
-    $ lfetool tests build
-    $ lfetool tests unit
+$ rebar3 eunit
 ```
-
-Similarly, if your project has defined integration tests, you can do:
-
-```bash
-    $ lfetool tests integration
-```
-
-If you'd like to run unit, integration, and system tests together, run
-the following:
-
-```bash
-    $ lfetool tests all
-```
-
-
-### The LFE Test Runner [&#x219F;](#contents)
-
-ltest now includes a test runner which overrides the EUnit handlers with its
-own. The original (and currently used) test runner functionality in lfetool
-is actually a series of gross shell hacks around the verbose EUnit test
-runner. More ``sed`` and manual ANSI terminal colors than is healthy for
-anyone.
-
-The new test runner code in ltest let's you skip that madness. For example,
-this project has a ``make`` target that uses it:
-
-```Makefile
-check-runner-eunit: compile-no-deps compile-tests
-    @PATH=$(SCRIPT_PATH) ERL_LIBS=$(ERL_LIBS) \
-    erl -cwd "`pwd`" -listener eunit_progress -eval \
-    "case 'ltest-runner':all() of ok -> halt(0); _ -> halt(127) end" \
-    -noshell
-```
-
-Here's what the output looks like with failing and skipped tests:
-
-<img src="priv/images/screen-2-1.png"/>
-
-End:
-
-<img src="priv/images/screen-2-2.png"/>
-
-And here's what passing tests looks like:
-
-<img src="priv/images/screen-1-1.png"/>
-
-End:
-
-<img src="priv/images/screen-1-2.png"/>
-
-The rest of the ``make`` targets still use lfetool, and will continue to do
-so, since lfetool will be updating to use ltest's new runner. If you'd like
-to track the progress on these, here are the related tickets:
- * https://github.com/lfex/ltool/issues/4
- * https://github.com/lfe/lfetool/issues/160
 
 
 ## Dogfood [&#x219F;](#contents)
@@ -326,147 +209,7 @@ to track the progress on these, here are the related tickets:
 project directory:
 
 ```bash
-    $ make check-runner-ltest
-```
-
-Which will give you output similar to the following:
-
-```
-================================ ltest =================================
-
------------------------------- Unit Tests ------------------------------
-
-module: ltest-basic-tests
-  is ................................................................ [ok]
-  is_with_one_phrase_deftest ........................................ [ok]
-  is_with_two_phrase_deftest ........................................ [ok]
-  is_with_many_phrase_deftest ....................................... [ok]
-  is_fail ........................................................... [ok]
-  is_not ............................................................ [ok]
-  is_not_fail ....................................................... [ok]
-  is_equal .......................................................... [ok]
-  is_equal_fail ..................................................... [ok]
-  is_not_equal ...................................................... [ok]
-  is_not_equal_fail ................................................. [ok]
-  is_exception ...................................................... [ok]
-  is_exception_wrong_class .......................................... [ok]
-  is_exception_wrong_term ........................................... [ok]
-  is_exception_unexpected_success ................................... [ok]
-  is_not_exception .................................................. [ok]
-  is_not_exception_exit ............................................. [ok]
-  is_not_exception_throw ............................................ [ok]
-  is_error .......................................................... [ok]
-  is_error_wrong_term ............................................... [ok]
-  is_error_unexpected_success ....................................... [ok]
-  is_throw .......................................................... [ok]
-  is_throw_wrong_term ............................................... [ok]
-  is_throw_unexpected_success ....................................... [ok]
-  is_exit ........................................................... [ok]
-  is_exit_wrong_term ................................................ [ok]
-  is_exit_unexpected_success ........................................ [ok]
-  is_match .......................................................... [ok]
-  is_match_fail ..................................................... [ok]
-  time: 92ms
-
-module: ltest-cancelled-tests
-  setup_test_case ................................................... [ok]
-  Another unused test ............................................... [ok]
-  time: 7ms
-
-module: ltest-fixture-tests
-  setup_test_case ................................................... [ok]
-  setup_test_case ................................................... [ok]
-  Named setup test .................................................. [ok]
-  setup_test_case ................................................... [ok]
-  setup_test_case ................................................... [ok]
-  Named setup test .................................................. [ok]
-  setup_test_case ................................................... [ok]
-  setup_test_case ................................................... [ok]
-  Named setup test .................................................. [ok]
-  foreach_test_case ................................................. [ok]
-  foreach_test_case ................................................. [ok]
-  setup_test_case ................................................... [ok]
-  setup_test_case ................................................... [ok]
-  Named setup test .................................................. [ok]
-  foreach_test_case ................................................. [ok]
-  foreach_test_case ................................................. [ok]
-  time: 49ms
-
-module: ltest-fixturecase-tests
-  setup_tc_test_case ................................................ [ok]
-  setup_tc_test_case ................................................ [ok]
-  Named test in setup-tc ............................................ [ok]
-  setup_tc_test_case ................................................ [ok]
-  setup_tc_test_case ................................................ [ok]
-  Named test in setup-tc ............................................ [ok]
-  setup_tc_test_case ................................................ [ok]
-  setup_tc_test_case ................................................ [ok]
-  Named test in setup-tc ............................................ [ok]
-  foreach_tc_test_case .............................................. [ok]
-  foreach_tc_test_case .............................................. [ok]
-  Named foreach-tc test ............................................. [ok]
-  setup_tc_test_case ................................................ [ok]
-  setup_tc_test_case ................................................ [ok]
-  Named test in setup-tc ............................................ [ok]
-  foreach_tc_test_case .............................................. [ok]
-  foreach_tc_test_case .............................................. [ok]
-  Named foreach-tc test ............................................. [ok]
-  time: 55ms
-
-module: ltest-generated-tests
-  is* ............................................................... [ok]
-  is_not*_in_list ................................................... [ok]
-  many_generators_in_list ........................................... [ok]
-  many_generators_in_list ........................................... [ok]
-  many_generators_in_list ........................................... [ok]
-  nested_test_set ................................................... [ok]
-  nested_test_set ................................................... [ok]
-  nested_test_set ................................................... [ok]
-  nested_test_set ................................................... [ok]
-  nested_test_set ................................................... [ok]
-  nested_test_set ................................................... [ok]
-  time: 34ms
-
-module: ltest-named-tests
-  named_is .......................................................... [ok]
-  named_is_not_fail ................................................. [ok]
-  named_testset_with_one ............................................ [ok]
-  named_testset_with_two ............................................ [ok]
-  named_testset_with_three .......................................... [ok]
-  named_testset_nested .............................................. [ok]
-  named_testset_deeply_nested ....................................... [ok]
-  time: 22ms
-
-module: ltest-testset-tests
-  testset_with_one .................................................. [ok]
-  testset_with_two .................................................. [ok]
-  testset_with_three ................................................ [ok]
-  testset_nested .................................................... [ok]
-  testset_deeply_nested ............................................. [ok]
-  time: 18ms
-
-summary:
-  Tests: 88  Passed: 88  Skipped: 0  Failed: 0 Erred: 0
-  Total time: 277ms
-
-
--------------------------- Integration Tests ---------------------------
-
-There were no integration tests found.
-
-
------------------------------ System Tests -----------------------------
-
-There were no system tests found.
-
-
-========================================================================
-
-There were no selenium tests found.
-
-
-========================================================================
-
+$ rebar3 eunit
 ```
 
 
@@ -486,13 +229,12 @@ Copyright © 2016, jsc <jonas.skovsgaard.christensen@gmail.com>
 
 Copyright © 2016, skovsgaard <jonas.skovsgaard.christensen@gmail.com>
 
+Copyright © 2017, Ricardo Lanziano <arpunk@fatelectron.net>
 
 <!-- Named page links below: /-->
 
-[lr3-logo]: priv/images/logo.png
 [org]: https://github.com/lfe-rebar3
 [github]: https://github.com/lfex/ltest
-[gitlab]: https://gitlab.com/lfex/ltest
 [travis]: https://travis-ci.org/lfex/ltest
 [travis badge]: https://img.shields.io/travis/lfex/ltest.svg
 [lfe]: https://github.com/rvirding/lfe
@@ -502,7 +244,3 @@ Copyright © 2016, skovsgaard <jonas.skovsgaard.christensen@gmail.com>
 [github tags]: https://github.com/lfex/ltest/tags
 [github tags badge]: https://img.shields.io/github/tag/lfex/ltest.svg
 [github downloads]: https://img.shields.io/github/downloads/atom/atom/total.svg
-[hex badge]: https://img.shields.io/hexpm/v/ltest.svg?maxAge=2592000
-[hex package]: https://hex.pm/packages/ltest
-[hex downloads]: https://img.shields.io/hexpm/dt/ltest.svg
-

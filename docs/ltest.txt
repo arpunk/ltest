@@ -4,14 +4,13 @@ MODULE
 
 MODULE SUMMARY
 
-    A Unit, Integration, and System Tests Framework for LFE
+    An EUnit based testing framework for LFE
 
 DESCRIPTION
 
     This module provides a set of macros that allow the developer
-    to define unit tests, generated unit tests, and even tests to
-    be skipped without having to manually type a bunch of boiler
-    plate code.
+    to define unit tests without having to manually type a bunch
+    of boiler plate code.
 
     Futhermore, ltest provides wrappers for EUnit assert macros
     have have Lispy names and require less typing.
@@ -139,25 +138,6 @@ MACROS
 
 BEST PRACTICES
 
-Test Types
-
-    * Separate unit, integration, and system tests into separate
-      modules. Each of these is described on the Wikipedia article
-      for Software Testing and we recommend reading up on them.
-
-    * To indicate the type of tests in a module, use the custom
-      OTP behaviours that ltest provides: ltest-unit,
-      ltest-integration, and ltest-system.
-
-    * In your unit tests, if you find yourself coming up against
-      an I/O boundary, either mock it (e.g., with meck) or move
-      the affected test an integration or system type.
-
-Directory Structure
-
-    Each test type should be created in ./test. These tests will
-    be compiled to ./.eunit.
-
 Naming
 
     By convention, Lisp function names use dashes, not
@@ -165,7 +145,7 @@ Naming
     and filenames. The only exception to this is when using
     named functions inside (deftestgen ...): the functions
     names must use the standard Erlang naming conventions
-    (this is due to a limiation in EUnit).
+    (this is due to a limitation in EUnit).
 
     By convention, test modules (and thus filenames) should end
     in -tests. Files, of course, need to also have the .lfe
@@ -174,13 +154,6 @@ Naming
     If your project has multiple test types, we recommend
     prefixing the module with an indicator such as unit-,
     integration-, or system-.
-
-    The lfetool test runner does not use filenames or naming
-    conventions to identify unit tests or tests of a particular
-    type. Instead, OTP behaviours are utilized. Therefore, if
-    you wish your test module to be recognized by lfetool, you
-    must indicate the type of test with a behaviour declaration
-    in the (demodule ...) form.
 
     The (deftest* ...) macros append appropriate _test* atoms to
     the test functions, so there is no need to name your test
@@ -198,21 +171,12 @@ Naming
 
 Running
 
-    LFE projects may take advantage of lfetool for many things,
-    one of which is running unit, integration, and system tests
-    with colorized output and regular, clean formatting.
-    Installation is done with the following:
-
-        $ curl -o ./lfetool \
-            https://raw.github.com/lfe/lfetool/master/lfetool
-        $ bash lfetool install /usr/local/bin
+    LFE projects may take advantage of rebar3 for many things,
+    one of which is running EUnit.
 
     At which point, tests for LFE may be run with any of the following:
 
-        $ lfetool tests unit
-        $ lfetool tests integration
-        $ lfetool tests system
-        $ lfetool tests all
+        $ rebar3 eunit
 
 EXAMPLES
 
@@ -226,10 +190,9 @@ Defining a Test Module
     And the content of that file would start with the following:
 
         (defmodule unit-special-tests
-          (behaviour ltest-unit)
           (export all))
 
-        (include-lib "deps/lfe/include/ltest.lfe")
+        (include-lib "ltest/include/ltest.lfe")
 
 Defining a Standard Test Case
 
