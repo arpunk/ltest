@@ -1,7 +1,6 @@
-(defmodule ltest-generated-tests
-  (behaviour ltest-unit))
+(defmodule ltest-generated-tests)
 
-(include-lib "include/ltest-macros.lfe")
+(include-lib "include/ltest.lfe")
 
 (deftestgen is* (is* 'true))
 

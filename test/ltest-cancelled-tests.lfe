@@ -7,10 +7,9 @@
 ;;;;
 ;;;; It is disabled because normally you want to see the test suite finishing
 ;;;; without errors.
-(defmodule ltest-cancelled-tests
-  (behaviour ltest-unit))
+(defmodule ltest-cancelled-tests)
 
-(include-lib "include/ltest-macros.lfe")
+(include-lib "include/ltest.lfe")
 
 (defun set-up () 'ok)
 
@@ -22,4 +21,3 @@
 
 (deftestgen setup-setup
   `#(setup ,(defsetup set-up) ,#'setup_test_case/1))
-

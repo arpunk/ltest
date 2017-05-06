@@ -1,11 +1,10 @@
 (defmodule ltest-basic-tests
-  (behaviour ltest-unit)
   (import
     (from ltest
       (check-failed-assert 2)
       (check-wrong-assert-exception 2))))
 
-(include-lib "include/ltest-macros.lfe")
+(include-lib "include/ltest.lfe")
 
 (deftest is
   (is 'true)

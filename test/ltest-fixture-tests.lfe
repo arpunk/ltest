@@ -1,7 +1,6 @@
-(defmodule ltest-fixture-tests
-  (behaviour ltest-unit))
+(defmodule ltest-fixture-tests)
 
-(include-lib "include/ltest-macros.lfe")
+(include-lib "include/ltest.lfe")
 
 (defun set-up () 'ok)
 

@@ -1,10 +1,9 @@
 (defmodule ltest-testset-tests
-  (behaviour ltest-unit)
   (import
     (from ltest
       (check-failed-assert 2))))
 
-(include-lib "include/ltest-macros.lfe")
+(include-lib "include/ltest.lfe")
 
 (deftest testset-with-one `[,(is 'true)])
 

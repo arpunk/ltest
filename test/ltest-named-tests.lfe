@@ -1,10 +1,9 @@
 (defmodule ltest-named-tests
-  (behaviour ltest-unit)
   (import
     (from ltest
       (check-failed-assert 2))))
 
-(include-lib "include/ltest-macros.lfe")
+(include-lib "include/ltest.lfe")
 
 (deftest named-is
   (tuple '"Testing the 'is' assertion macro."
