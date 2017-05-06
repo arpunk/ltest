@@ -4,7 +4,7 @@
       (check-failed-assert 2)
       (check-wrong-assert-exception 2))))
 
-(include-lib "include/ltest.lfe")
+(include-lib "ltest/include/ltest.lfe")
 
 (deftest is
   (is 'true)

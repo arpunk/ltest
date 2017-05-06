@@ -9,7 +9,7 @@
 ;;;; without errors.
 (defmodule ltest-cancelled-tests)
 
-(include-lib "include/ltest.lfe")
+(include-lib "ltest/include/ltest.lfe")
 
 (defun set-up () 'ok)
 

@@ -1,7 +1,7 @@
 (defmodule ltest
   (export all))
 
-(include-lib "include/ltest.lfe")
+(include-lib "ltest/include/ltest.lfe")
 
 (defun check-failed-assert (data expected)
   "This function

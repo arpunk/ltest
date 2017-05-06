@@ -1,6 +1,6 @@
 (defmodule ltest-generated-tests)
 
-(include-lib "include/ltest.lfe")
+(include-lib "ltest/include/ltest.lfe")
 
 (deftestgen is* (is* 'true))
 

@@ -3,7 +3,7 @@
     (from ltest
       (check-failed-assert 2))))
 
-(include-lib "include/ltest.lfe")
+(include-lib "ltest/include/ltest.lfe")
 
 (deftest testset-with-one `[,(is 'true)])
 
